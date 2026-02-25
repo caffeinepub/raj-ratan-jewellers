@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.125rem;
+    /* Luxury Jewellery Theme - Dark Mode DEFAULT (Royal Black with Gold) */
+    --background: 0.08 0 0; /* Deep black #0A0A0A */
+    --foreground: 0.95 0.01 85; /* Light cream for excellent contrast */
+    --card: 0.13 0 0; /* Slightly lighter black for depth */
+    --card-foreground: 0.95 0.01 85;
+    --popover: 0.13 0 0;
+    --popover-foreground: 0.95 0.01 85;
+    --primary: 0.85 0.16 88; /* Bright gold #FFD700 that pops on black */
+    --primary-foreground: 0.08 0 0; /* Black text on gold */
+    --secondary: 0.72 0.12 82; /* Rich gold #D4AF37 */
+    --secondary-foreground: 0.08 0 0;
+    --muted: 0.20 0 0; /* Dark muted background */
+    --muted-foreground: 0.70 0.005 85; /* Light muted text for readability */
+    --accent: 0.85 0.16 88; /* Gold accent matching primary */
+    --accent-foreground: 0.08 0 0;
+    --destructive: 0.65 0.22 25;
+    --destructive-foreground: 0.95 0.01 85;
+    --border: 0.28 0.02 85; /* Subtle gold-tinted border visible on black */
+    --input: 0.28 0.02 85;
+    --ring: 0.85 0.16 88; /* Bright gold ring */
+    --chart-1: 0.85 0.16 88;
+    --chart-2: 0.72 0.12 82;
+    --chart-3: 0.65 0.08 75;
+    --chart-4: 0.55 0.05 65;
+    --chart-5: 0.45 0.03 55;
+  }
+
+  .light {
+    /* Optional light theme - dark is now default */
+    --background: 0.98 0.01 85; /* Warm cream */
+    --foreground: 0.08 0 0; /* Deep black */
+    --card: 1 0.005 85;
+    --card-foreground: 0.08 0 0;
+    --popover: 1 0.005 85;
+    --popover-foreground: 0.08 0 0;
+    --primary: 0.72 0.12 82; /* Rich gold */
+    --primary-foreground: 0.08 0 0;
+    --secondary: 0.85 0.16 88; /* Lighter gold */
+    --secondary-foreground: 0.08 0 0;
+    --muted: 0.92 0.01 85;
+    --muted-foreground: 0.45 0.005 85;
+    --accent: 0.72 0.12 82;
+    --accent-foreground: 0.08 0 0;
+    --destructive: 0.55 0.22 25;
+    --destructive-foreground: 0.98 0.01 85;
+    --border: 0.85 0.02 85;
+    --input: 0.85 0.02 85;
+    --ring: 0.72 0.12 82;
+    --chart-1: 0.72 0.12 82;
+    --chart-2: 0.85 0.16 88;
+    --chart-3: 0.65 0.08 75;
+    --chart-4: 0.55 0.05 65;
+    --chart-5: 0.45 0.03 55;
+  }
+
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "kern" 1, "liga" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Smooth transitions for all color properties during theme switch */
+  * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Luxury gold gradient text effect for headings */
+  .gold-gradient-text {
+    background: linear-gradient(
+      135deg,
+      oklch(0.85 0.16 88) 0%,
+      oklch(0.72 0.12 82) 50%,
+      oklch(0.85 0.16 88) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Custom shimmer animation for jewellery cards */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+  }
+
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(0.85 0.16 88 / 0.4) 50%,
+      transparent 100%
+    );
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    transition: transform 0.6s ease;
+  }
+
+  .shimmer-effect:hover::after {
+    animation: shimmer 1.2s ease-in-out;
+  }
+
+  /* Luxury glow effect for CTAs */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px oklch(0.85 0.16 88 / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px oklch(0.85 0.16 88 / 0.6);
+    }
+  }
+
+  /* Hero carousel content fade-in animation */
+  @keyframes hero-fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Hero carousel background zoom effect */
+  @keyframes hero-bg-zoom {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.05);
+    }
+  }
+}
