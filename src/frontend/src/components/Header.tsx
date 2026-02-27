@@ -62,8 +62,8 @@ export function Header() {
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <nav className="flex flex-col space-y-6 mt-8">
+          <SheetContent side="right" className="w-[300px] sm:w-[400px] p-6">
+            <nav className="flex flex-col space-y-6 mt-12">
               <Link
                 to="/"
                 className="font-serif text-2xl font-bold text-primary tracking-tight"

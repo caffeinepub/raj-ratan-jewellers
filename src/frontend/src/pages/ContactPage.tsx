@@ -174,7 +174,7 @@ export function ContactPage() {
                       <h3 className="font-semibold mb-1">Business Hours</h3>
                       <p className="text-muted-foreground text-sm">
                         Open 10:00 AM onwards<br />
-                        <span className="text-xs">Closed on Tuesdays</span>
+                        <span className="text-xs">Closed on Thursdays</span>
                       </p>
                     </div>
                   </div>
@@ -201,10 +201,10 @@ export function ContactPage() {
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
                       <a
-                        href="mailto:rajratanjewellersdeo@gmail.com"
+                        href="mailto:rajratanjewellers.deoghar@gmail.com"
                         className="text-muted-foreground text-sm hover:text-primary transition-colors"
                       >
-                        rajratanjewellersdeo@gmail.com
+                        rajratanjewellers.deoghar@gmail.com
                       </a>
                     </div>
                   </div>
