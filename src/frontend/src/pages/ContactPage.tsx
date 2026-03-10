@@ -1,59 +1,134 @@
-import { useState } from "react";
-import { useActor } from "@/hooks/useActor";
-import { useMutation } from "@tanstack/react-query";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Clock, Phone, Mail } from "lucide-react";
+import { MapPin, Clock, Phone, Mail, Upload, X, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
+const BUSINESS_EMAIL = "rajratanjewellers.deoghar@gmail.com";
+
+function isValidEmail(email: string): boolean {
+  return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email.trim());
+}
+
+function isValidPhone(phone: string): boolean {
+  // Strip spaces, dashes, parentheses, dots, and leading +
+  const digits = phone.replace(/[\s\-().+]/g, "");
+  // Must be exactly 10 digits starting with 6-9 (Indian mobile),
+  // OR 11 digits starting with 0 followed by a 6-9 digit (STD trunk format),
+  // OR exactly 10 digits (any country – fallback)
+  return /^[6-9]\d{9}$/.test(digits) || /^0[6-9]\d{9}$/.test(digits);
+}
+
 export function ContactPage() {
-  const { actor } = useActor();
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     message: "",
   });
+  const [emailError, setEmailError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [uploadedImage, setUploadedImage] = useState<{ file: File; preview: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const submitMutation = useMutation({
-    mutationFn: async () => {
-      if (!actor) throw new Error("Backend not available");
-      
-      const { name, phone, email, message } = formData;
-      
-      if (!name || !phone || !email || !message) {
-        throw new Error("Please fill in all fields");
-      }
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-      const result = await actor.submitInquiry(name, phone, email, message);
-      return result;
-    },
-    onSuccess: (result) => {
-      if (result) {
-        toast.success("Thank you! We'll contact you soon.");
-        setFormData({ name: "", phone: "", email: "", message: "" });
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Failed to submit inquiry");
-    },
-  });
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload a valid image file (JPG, PNG, etc.)");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image size must be less than 10MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setUploadedImage({ file, preview: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setUploadedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    submitMutation.mutate();
+    setEmailError("");
+    setPhoneError("");
+
+    const { name, phone, email, message } = formData;
+
+    if (!name || !phone || !email || !message) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    if (!isValidPhone(phone)) {
+      setPhoneError("Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      setEmailError("Please enter a valid email address (e.g. name@example.com).");
+      return;
+    }
+
+    const subject = encodeURIComponent(`Jewellery Inquiry from ${name}`);
+    let bodyText = `Name: ${name}\nPhone: ${phone}\nEmail: ${email}\n\nMessage:\n${message}`;
+
+    if (uploadedImage) {
+      bodyText += `\n\n---\nDesign Reference Image: ${uploadedImage.file.name}\n(Please manually attach the image saved on your device to this email before sending.)`;
+    }
+
+    const body = encodeURIComponent(bodyText);
+    window.location.href = `mailto:${BUSINESS_EMAIL}?subject=${subject}&body=${body}`;
+
+    toast.success(
+      uploadedImage
+        ? "Your email app will open. Please attach your design image and send."
+        : "Your email app will open with the message pre-filled. Please send it to complete your inquiry."
+    );
+
+    setFormData({ name: "", phone: "", email: "", message: "" });
+    setEmailError("");
+    setPhoneError("");
+    setUploadedImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (e.target.id === "email") setEmailError("");
+    if (e.target.id === "phone") setPhoneError("");
     setFormData((prev) => ({
       ...prev,
       [e.target.id]: e.target.value,
     }));
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (e.target.id === "phone" && e.target.value) {
+      if (!isValidPhone(e.target.value)) {
+        setPhoneError("Please enter a valid 10-digit Indian mobile number (e.g. 9876543210).");
+      } else {
+        setPhoneError("");
+      }
+    }
+    if (e.target.id === "email" && e.target.value) {
+      if (!isValidEmail(e.target.value)) {
+        setEmailError("Please enter a valid email address (e.g. name@example.com).");
+      } else {
+        setEmailError("");
+      }
+    }
   };
 
   return (
@@ -101,25 +176,40 @@ export function ContactPage() {
                       <Input
                         id="phone"
                         type="tel"
-                        placeholder="+91 XXXXXXXXXX"
+                        placeholder="e.g. 9876543210"
                         value={formData.phone}
                         onChange={handleChange}
+                        onBlur={handleBlur}
+                        maxLength={15}
                         required
-                        className="h-12"
+                        className={`h-12 ${phoneError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                       />
+                      {phoneError ? (
+                        <p className="text-red-500 text-xs mt-1">{phoneError}</p>
+                      ) : (
+                        <p className="text-muted-foreground text-xs mt-1">Enter a valid 10-digit Indian mobile number</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="email">Email Address *</Label>
                       <Input
                         id="email"
-                        type="email"
+                        type="text"
+                        inputMode="email"
+                        autoComplete="email"
                         placeholder="your.email@example.com"
                         value={formData.email}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         required
-                        className="h-12"
+                        className={`h-12 ${emailError ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                       />
+                      {emailError ? (
+                        <p className="text-red-500 text-xs mt-1">{emailError}</p>
+                      ) : (
+                        <p className="text-muted-foreground text-xs mt-1">We'll never share your email with anyone</p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -130,18 +220,79 @@ export function ContactPage() {
                         value={formData.message}
                         onChange={handleChange}
                         required
-                        rows={6}
+                        rows={5}
                         className="resize-none"
                       />
                     </div>
+
+                    {/* Optional Image Upload */}
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-1">
+                        <ImageIcon className="h-4 w-4" />
+                        Upload Design Reference
+                        <span className="text-muted-foreground font-normal text-xs ml-1">(Optional)</span>
+                      </Label>
+
+                      {!uploadedImage ? (
+                        <button
+                          type="button"
+                          className="w-full border-2 border-dashed border-border/60 rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Click to upload your design image
+                          </p>
+                          <p className="text-xs text-muted-foreground/70 mt-1">
+                            JPG, PNG, WEBP up to 10MB
+                          </p>
+                        </button>
+                      ) : (
+                        <div className="relative rounded-lg overflow-hidden border border-border/50 bg-muted/20">
+                          <img
+                            src={uploadedImage.preview}
+                            alt="Design reference preview"
+                            className="w-full max-h-48 object-contain p-2"
+                          />
+                          <div className="px-3 py-2 flex items-center justify-between bg-muted/40">
+                            <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                              {uploadedImage.file.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={removeImage}
+                              className="text-muted-foreground hover:text-destructive transition-colors ml-2 shrink-0"
+                              aria-label="Remove image"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+
+                      <p className="text-xs text-muted-foreground/80 leading-relaxed">
+                        Have a design in mind? Upload a reference image (sketch, photo, or inspiration). You will be prompted to attach it manually when your email app opens.
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground/70 text-center">
+                      You will be redirected to your email app to complete the submission.
+                    </p>
 
                     <Button
                       type="submit"
                       size="lg"
                       className="w-full shadow-luxury"
-                      disabled={submitMutation.isPending}
                     >
-                      {submitMutation.isPending ? "Sending..." : "Send Message"}
+                      Send Message
                     </Button>
                   </form>
                 </CardContent>

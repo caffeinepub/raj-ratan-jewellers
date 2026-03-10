@@ -18,7 +18,7 @@ export function Footer() {
             </p>
             <div className="flex space-x-4">
               <a
-                href="https://wa.me/91XXXXXXXXXX"
+                href="https://wa.me/917717770674"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
@@ -82,24 +82,24 @@ export function Footer() {
               <div className="flex items-start space-x-3">
                 <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Pandey Gali, Roy Road, opposite Miss Universe and Raja Photo Framing, 
-                  S B, Deoghar, Jharkhand 814112, India
+                  Pandey Gali, S B Roy Road, opposite Miss Universe and Raja Photo Framing, 
+                  Deoghar, Jharkhand 814112, India
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-primary shrink-0" />
                 <p className="text-muted-foreground text-sm">
                   Open 10:00 AM onwards<br />
-                  <span className="text-xs">(Closed on Tuesdays)</span>
+                  <span className="text-xs">(Closed on Thursdays)</span>
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-5 w-5 text-primary shrink-0" />
-                <p className="text-muted-foreground text-sm">+91-XXXXXXXXXX</p>
+                <a href="tel:+917717770674" className="text-muted-foreground text-sm hover:text-primary transition-colors">+91 7717770674</a>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-5 w-5 text-primary shrink-0" />
-                <p className="text-muted-foreground text-sm">info@rajratanjewellers.com</p>
+                <a href="mailto:rajratanjewellers.deoghar@gmail.com" className="text-muted-foreground text-sm hover:text-primary transition-colors">rajratanjewellers.deoghar@gmail.com</a>
               </div>
             </div>
           </div>
